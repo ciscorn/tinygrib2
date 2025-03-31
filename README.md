@@ -1,5 +1,7 @@
 # tinygrib2
 
+WIP, Unstable
+
 ## GRIB2 Sections
 
 https://codes.ecmwf.int/grib/format/grib2/overview/
