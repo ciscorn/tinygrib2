@@ -32,5 +32,5 @@ flowchart TB
 ## Code tables and templates
 
 - GRIB2: https://github.com/wmo-im/grib2
+  - ECMWF: https://codes.ecmwf.int/grib/format/grib2/
 - CCT (Common Code Tables): https://github.com/wmo-im/CCT
-

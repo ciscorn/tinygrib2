@@ -1,7 +1,8 @@
-use std::io::BufRead;
+use std::io::Read;
 
 use byteorder::{BigEndian, NativeEndian, ReadBytesExt};
 
+use crate::templates::GribRead;
 use crate::{Error, Result};
 
 /// Section 0: INDICATOR SECTION (IS)
@@ -16,13 +17,13 @@ pub struct IndicatorSectionHeader {
 
 impl IndicatorSectionHeader {
     /// Read Section 0: INDICATOR SECTION (IS)
-    pub fn read<R: BufRead>(reader: &mut R) -> Result<Self> {
+    pub fn read<R: Read>(reader: &mut R) -> Result<Self> {
         Ok(Self {
             identifier: 0x47524942, // "GRIB"
             reserved: reader.read_u16::<NativeEndian>()?,
-            discipline: reader.read_u8()?,
+            discipline: reader.read_grib_value()?,
             edition_number: {
-                let edition_number = reader.read_u8()?;
+                let edition_number = reader.read_grib_value()?;
                 if edition_number != 2 {
                     return Err(Error::InvalidData(format!(
                         "edition number must be 2 (grib2), but got {}",
@@ -44,7 +45,7 @@ pub struct SectionHeader {
 }
 
 impl SectionHeader {
-    pub fn read<R: BufRead>(reader: &mut R, allow_end: bool) -> Result<Self> {
+    pub fn read<R: Read>(reader: &mut R, allow_end: bool) -> Result<Self> {
         let buf = reader.read_u32::<byteorder::BigEndian>()?;
         Ok(if allow_end && buf == 0x37373737 {
             // End Section
@@ -55,7 +56,7 @@ impl SectionHeader {
         } else {
             SectionHeader {
                 section_length: buf,
-                number_of_section: reader.read_u8()?,
+                number_of_section: reader.read_grib_value()?,
             }
         })
     }
@@ -93,23 +94,23 @@ pub struct IdentificationSectionHeader {
 
 impl IdentificationSectionHeader {
     /// Read Section 1: IDENTIFICATION SECTION (IDS)
-    pub fn read<R: BufRead>(header: SectionHeader, reader: &mut R) -> Result<Self> {
+    pub fn read<R: Read>(header: SectionHeader, reader: &mut R) -> Result<Self> {
         header.ensure_section_number(1)?;
         Ok(Self {
             section_length: header.section_length,
-            centre: reader.read_u16::<BigEndian>()?,
-            sub_centre: reader.read_u16::<BigEndian>()?,
-            tables_version: reader.read_u8()?,
-            local_tables_version: reader.read_u8()?,
-            significance_of_reference_time: reader.read_u8()?,
-            year: reader.read_u16::<BigEndian>()?,
-            month: reader.read_u8()?,
-            day: reader.read_u8()?,
-            hour: reader.read_u8()?,
-            minute: reader.read_u8()?,
-            second: reader.read_u8()?,
-            production_status_of_processed_data: reader.read_u8()?,
-            type_of_processed_data: reader.read_u8()?,
+            centre: reader.read_grib_value()?,
+            sub_centre: reader.read_grib_value()?,
+            tables_version: reader.read_grib_value()?,
+            local_tables_version: reader.read_grib_value()?,
+            significance_of_reference_time: reader.read_grib_value()?,
+            year: reader.read_grib_value()?,
+            month: reader.read_grib_value()?,
+            day: reader.read_grib_value()?,
+            hour: reader.read_grib_value()?,
+            minute: reader.read_grib_value()?,
+            second: reader.read_grib_value()?,
+            production_status_of_processed_data: reader.read_grib_value()?,
+            type_of_processed_data: reader.read_grib_value()?,
             template_number: match header.section_length {
                 21 => None,
                 _ => Some(reader.read_u16::<BigEndian>()?),
@@ -133,10 +134,7 @@ pub struct LocalUseSectionHeader {
 
 impl LocalUseSectionHeader {
     /// Read Section 2: LOCAL USE SECTION (LOC)
-    pub fn read<R: BufRead>(
-        header: SectionHeader,
-        _reader: &mut R,
-    ) -> Result<LocalUseSectionHeader> {
+    pub fn read<R: Read>(header: SectionHeader, _reader: &mut R) -> Result<LocalUseSectionHeader> {
         header.ensure_section_number(2)?;
         Ok(Self {
             section_length: header.section_length,
@@ -161,15 +159,15 @@ pub struct GridDefinitionSectionHeader {
 
 impl GridDefinitionSectionHeader {
     /// Read Section 3: GRID DEFINITION SECTION (GDS)
-    pub fn read<R: BufRead>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
+    pub fn read<R: Read>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
         header.ensure_section_number(3)?;
         Ok(Self {
             section_length: header.section_length,
-            source_of_grid_definition: reader.read_u8()?,
-            number_of_data_points: reader.read_u32::<BigEndian>()?,
-            number_of_octects_for_number_of_points: reader.read_u8()?,
-            interpretation_of_number_of_points: reader.read_u8()?,
-            template_number: reader.read_u16::<BigEndian>()?,
+            source_of_grid_definition: reader.read_grib_value()?,
+            number_of_data_points: reader.read_grib_value()?,
+            number_of_octects_for_number_of_points: reader.read_grib_value()?,
+            interpretation_of_number_of_points: reader.read_grib_value()?,
+            template_number: reader.read_grib_value()?,
         })
     }
 
@@ -188,12 +186,12 @@ pub struct ProductDefinitionSectionHeader {
 
 impl ProductDefinitionSectionHeader {
     /// Read Section 4: PRODUCT DEFINITION SECTION (PDS)
-    pub fn read<R: BufRead>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
+    pub fn read<R: Read>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
         header.ensure_section_number(4)?;
         Ok(ProductDefinitionSectionHeader {
             section_length: header.section_length,
-            nv: reader.read_u16::<BigEndian>()?,
-            template_number: reader.read_u16::<BigEndian>()?,
+            nv: reader.read_grib_value()?,
+            template_number: reader.read_grib_value()?,
         })
     }
 
@@ -212,15 +210,15 @@ pub struct DataRepresentationSectionHeader {
 
 impl DataRepresentationSectionHeader {
     /// Read Section 5: Data Representation Section (DRS)
-    pub fn read<R: BufRead>(
+    pub fn read<R: Read>(
         header: &SectionHeader,
         reader: &mut R,
     ) -> Result<DataRepresentationSectionHeader> {
         header.ensure_section_number(5)?;
         Ok(Self {
             section_length: header.section_length,
-            number_of_values: reader.read_u32::<BigEndian>()?,
-            template_number: reader.read_u16::<BigEndian>()?,
+            number_of_values: reader.read_grib_value()?,
+            template_number: reader.read_grib_value()?,
         })
     }
 
@@ -238,11 +236,11 @@ pub struct BitmapSectionHeader {
 
 impl BitmapSectionHeader {
     /// Read Section 6: BIT-MAP SECTION (BITMAP)
-    pub fn read<R: BufRead>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
+    pub fn read<R: Read>(header: &SectionHeader, reader: &mut R) -> Result<Self> {
         header.ensure_section_number(6)?;
         Ok(Self {
             section_length: header.section_length,
-            bit_map_indicator: reader.read_u8()?,
+            bit_map_indicator: reader.read_grib_value()?,
         })
     }
 

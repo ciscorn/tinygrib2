@@ -1,4 +1,4 @@
-use std::io::BufRead;
+use std::io::Read;
 
 use byteorder::ReadBytesExt;
 
@@ -6,12 +6,12 @@ use crate::templates::data_representation::DataRepresentationTemplate5_200;
 use crate::{DataRepresentationSectionHeader, Error, Result};
 
 /// Template 7.200 (Run length packing with level values)
-pub fn read_data_7_200<R: BufRead>(
+pub fn read_data_7_200<R: Read>(
     reader: &mut R,
     size: usize,
     drs: &DataRepresentationSectionHeader,
     drs_template: &DataRepresentationTemplate5_200,
-) -> Result<Vec<f64>> {
+) -> Result<Vec<Option<u16>>> {
     if drs_template.number_of_bits != 8 {
         return Err(Error::UnsupportedData(format!(
             "Only supports 8 bits in our 7.200 implementation, but got {}",
@@ -19,12 +19,7 @@ pub fn read_data_7_200<R: BufRead>(
         )));
     }
 
-    let mut values: Vec<f64> = Vec::with_capacity(drs.number_of_values as usize);
-
-    let scale_factor = 10.0_f64.powi(match drs_template.decimal_scale_factor {
-        sf if sf & 0x80 == 0 => sf as i32,
-        sf => -((sf & 0x7F) as i32),
-    });
+    let mut values: Vec<Option<u16>> = Vec::with_capacity(drs.number_of_values as usize);
 
     let mut lv = reader.read_u8()?;
     let mut p = 0;
@@ -44,11 +39,12 @@ pub fn read_data_7_200<R: BufRead>(
             }
         }
         let value = match lv {
-            0 => f64::NAN,
-            _ => drs_template.mvl_scaled_representative_values[(lv - 1) as usize] as f64,
+            0 => None,
+            _ => Some(drs_template.mvl_scaled_representative_values[(lv - 1) as usize]),
+            // _ => Some((lv - 1) as u16),
         };
         for _ in 0..run_length {
-            values.push(value * scale_factor);
+            values.push(value);
         }
         lv = next;
     }

@@ -1,11 +1,11 @@
-use std::io::{BufRead, Read};
+use std::io::Read;
 
 use byteorder::ReadBytesExt;
 
 use crate::message::*;
 use crate::{Error, Result};
 
-pub trait MessageReader<R: BufRead> {
+pub trait MessageReader<R: Read> {
     fn handle_indicator(&mut self, _is: IndicatorSectionHeader) -> Result<()> {
         // do nothing
         Ok(())
@@ -127,6 +127,7 @@ pub trait MessageReader<R: BufRead> {
                 // Product Definition Section (4)
                 {
                     let pds = ProductDefinitionSectionHeader::read(&next_header, reader)?;
+
                     let mut reader = reader.take(pds.body_len() as u64);
                     self.handle_product_definition(pds, &mut reader)?;
                     std::io::copy(&mut reader, &mut std::io::sink())?;
