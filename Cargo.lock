@@ -198,9 +198,9 @@ checksum = "963382c5702e8580722bacfdb85f4de5efeee744ac48f3f454e66c45a81a1d74"
 
 [[package]]
 name = "i_overlay"
-version = "2.2.0"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25ecc3d2dcbf6dbc2edb7a2ff48d134e594f63ed192d57d62a9c3f132d0d6b91"
+checksum = "dc1e03e8f281450f1eb3a2e800a9dfa3f485ebacd2acb4e16a11f0f222f78d15"
 dependencies = [
  "i_float",
  "i_key_sort",
@@ -211,9 +211,9 @@ dependencies = [
 
 [[package]]
 name = "i_shape"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac5aa16ea6353395bbe058ebeaa427f214c164cbfacb1a13f28ad7d2a3ce8418"
+checksum = "07b39e72c34459486834a872286338081e053e0a50251deb10e2a5bbc2535448"
 dependencies = [
  "i_float",
  "serde",
@@ -221,9 +221,9 @@ dependencies = [
 
 [[package]]
 name = "i_tree"
-version = "0.12.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5db59b4274383f96cbacd6bd391c3888fcd07c4af6807874d7af1d8ae26dcf9c"
+checksum = "ce7f2b6eea24c4ef5a9a117ef7b802c7ff173f2f6565716ee7034258fd7992c5"
 
 [[package]]
 name = "indexmap"
@@ -463,9 +463,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "scoc"
+name = "scoa"
 version = "0.1.0"
-source = "git+https://github.com/MIERUNE/scoc.git#6eb13bb74bf72dcdf53ff964f9d415be88f0a9f5"
+source = "git+https://github.com/MIERUNE/scoa.git#fb23a5fbe4c29eea1513ea1b3b81982ad29401c2"
 dependencies = [
  "byteorder",
  "flate2",
@@ -552,16 +552,16 @@ dependencies = [
  "itertools",
  "japanmesh",
  "prost",
- "scoc",
+ "scoa",
  "thiserror",
  "tinymvt",
 ]
 
 [[package]]
 name = "tinymvt"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc190c253b3e2d0d78fefc09b2fd747df42d6254d5777a0a952240be1047aa4f"
+checksum = "70db0f4d2e453380425760bef1370df8fce40e39f9eb4e520222e4d52cf9a421"
 dependencies = [
  "foldhash",
  "indexmap",

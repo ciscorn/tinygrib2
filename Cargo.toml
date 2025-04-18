@@ -19,8 +19,8 @@ japanmesh = "0.1.1"
 bincode = "2.0.1"
 flate2 = "1.1.1"
 prost = "0.13.5"
-i_overlay = "2.2.0"
+i_overlay = "3.0.2"
 bytesize = "2.0.1"
-tinymvt = "0.2.1"
+tinymvt = "0.2.2"
 foldhash = "0.1.5"
-scoc = { git = "https://github.com/MIERUNE/scoc.git" }
+scoa = { git = "https://github.com/MIERUNE/scoa.git" }
