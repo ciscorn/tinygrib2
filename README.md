@@ -1,5 +1,7 @@
 # tinygrib2
 
+experimental grib2 parser
+
 ## GRIB2 Sections
 
 https://codes.ecmwf.int/grib/format/grib2/overview/
@@ -34,3 +36,8 @@ flowchart TB
 - GRIB2: https://github.com/wmo-im/grib2
   - ECMWF: https://codes.ecmwf.int/grib/format/grib2/
 - CCT (Common Code Tables): https://github.com/wmo-im/CCT
+
+## Authors
+
+- Taku Fukada ([@ciscorn](https://github.com/ciscorn)) - Original Author
+
