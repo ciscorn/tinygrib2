@@ -2,6 +2,8 @@
 
 experimental grib2 parser
 
+License: Apache-2 or MIT
+
 ## GRIB2 Sections
 
 https://codes.ecmwf.int/grib/format/grib2/overview/
