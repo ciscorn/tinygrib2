@@ -95,7 +95,9 @@ pub trait MessageReader<R: Read> {
         {
             let mut reader = reader.take(ids.body_len() as u64);
             self.handle_identification(ids, &mut reader)?;
-            std::io::copy(&mut reader, &mut std::io::sink())?;
+            if reader.limit() > 0 {
+                std::io::copy(&mut reader, &mut std::io::sink())?;
+            }
         }
 
         let mut next_header = SectionHeader::read(reader, false)?;
@@ -107,7 +109,9 @@ pub trait MessageReader<R: Read> {
                 {
                     let mut reader = reader.take(loc.body_len() as u64);
                     self.handle_local_use(loc, &mut reader)?;
-                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                    if reader.limit() > 0 {
+                        std::io::copy(&mut reader, &mut std::io::sink())?;
+                    }
                 }
 
                 next_header = SectionHeader::read(reader, false)?;
@@ -118,7 +122,9 @@ pub trait MessageReader<R: Read> {
                 let gds = GridDefinitionSectionHeader::read(&next_header, reader)?;
                 let mut reader = reader.take(gds.body_len() as u64);
                 self.handle_grid_definition(gds, &mut reader)?;
-                std::io::copy(&mut reader, &mut std::io::sink())?;
+                if reader.limit() > 0 {
+                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                }
             }
 
             next_header = SectionHeader::read(reader, false)?;
@@ -129,7 +135,9 @@ pub trait MessageReader<R: Read> {
                     let pds = ProductDefinitionSectionHeader::read(&next_header, reader)?;
                     let mut reader = reader.take(pds.body_len() as u64);
                     self.handle_product_definition(pds, &mut reader)?;
-                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                    if reader.limit() > 0 {
+                        std::io::copy(&mut reader, &mut std::io::sink())?;
+                    }
                 }
 
                 // Data Representation Section (5)
@@ -140,7 +148,9 @@ pub trait MessageReader<R: Read> {
                     )?;
                     let mut reader = reader.take(drs.body_len() as u64);
                     self.handle_data_representation(drs, &mut reader)?;
-                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                    if reader.limit() > 0 {
+                        std::io::copy(&mut reader, &mut std::io::sink())?;
+                    }
                 }
 
                 // Bit-Map Section (6)
@@ -149,7 +159,9 @@ pub trait MessageReader<R: Read> {
                         BitmapSectionHeader::read(&SectionHeader::read(reader, false)?, reader)?;
                     let mut reader = reader.take(bitmap.body_len() as u64);
                     self.handle_bitmap(bitmap, &mut reader)?;
-                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                    if reader.limit() > 0 {
+                        std::io::copy(&mut reader, &mut std::io::sink())?;
+                    }
                 }
 
                 // Data Section (7)
@@ -157,7 +169,9 @@ pub trait MessageReader<R: Read> {
                     let data = DataSectionHeader::read(&SectionHeader::read(reader, false)?)?;
                     let mut reader = reader.take(data.body_len() as u64);
                     self.handle_data(data, &mut reader)?;
-                    std::io::copy(&mut reader, &mut std::io::sink())?;
+                    if reader.limit() > 0 {
+                        std::io::copy(&mut reader, &mut std::io::sink())?;
+                    }
                 }
 
                 // Next Section

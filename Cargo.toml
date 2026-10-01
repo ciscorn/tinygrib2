@@ -6,5 +6,8 @@ edition = "2024"
 [dependencies]
 thiserror = "2.0.12"
 byteorder = "1.5.0"
-bitstream-io = "4.2.0"
 itertools = "0.14.0"
+
+[dev-dependencies]
+# The previous decoders are kept as references in the data template tests.
+bitstream-io = "4.2.0"
